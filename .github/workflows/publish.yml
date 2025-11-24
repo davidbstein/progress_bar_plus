@@ -19,7 +19,7 @@ jobs:
         uses: astral-sh/setup-uv@v2
 
       - name: Build artifacts
-        run: uv build --no-sources
+        run: uv build --no-sources --no-cache
 
       - name: Publish to PyPI
         run: uv publish
