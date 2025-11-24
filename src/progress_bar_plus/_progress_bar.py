@@ -5,8 +5,10 @@ import atexit
 import asyncio
 import weakref
 import os
+import sys
 import logging
 import logging.config
+from pathlib import Path
 
 def get_slurm_state():
   return {
@@ -31,12 +33,15 @@ def is_in_jupyter():
   except ImportError:
     return False
 
+_dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
+logger = logging.config.fileConfig(_dir_path / "default_config.conf")
+
 if is_in_jupyter():
   from ipywidgets import HTML
   import ipywidgets
-
-if is_in_jupyter():
   logger = logging.getLogger('notebookLogger')
+elif is_in_slurm():
+  logger = logging.getLogger('slurmLogger')
 else:
   logger = logging.getLogger('scriptLogger')
 
@@ -44,6 +49,10 @@ _SETTINGS = {
   "interactive_debounce": 0.1, # if running in an interactive terminal or jupyter
   "script_debounce": 60, # if running on a SLURM node
 }
+
+def is_redirected():
+  # todo: windows is different.
+  return not is_in_jupyter() and not sys.stdout.isatty()
 
 def get_caller():
   try:
@@ -221,7 +230,7 @@ class ProgressBar:
     self.finished = False
     self.error = None
     self.notebook_mode = is_in_jupyter() and not force_script_mode and not force_interactive_mode
-    self.interative_mode = not is_in_slurm() and not force_script_mode
+    self.interative_mode = not is_in_slurm() and not is_redirected() and not force_script_mode
     if self.notebook_mode:
       self.debounce_rate = _SETTINGS['interactive_debounce']
       self.render_target = weakref.proxy(HTML(value=_render_html(self)))
@@ -282,7 +291,7 @@ class ProgressBar:
       self.render_target.value = _render_html(self)
     else:
       state_string = _render_text(self)
-      if not is_in_slurm():
+      if not self.interative_mode:
         if self.finished or self.error:
           end = "\n"
         else:
