@@ -339,7 +339,8 @@ class ProgressBar:
     self.close()
 
   def __del__(self):
-    logger.debug("TODO: HANDLE PBAR DELETION")
-
-
+    try:
+      logger.debug("Pbar Deleted")
+    except:
+      pass # sometimes self-references break during deletion.
 progress_bar = ProgressBar
