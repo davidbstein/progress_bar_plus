@@ -1,6 +1,6 @@
 [project]
 name = "progress-bar-plus"
-version = "0.2.1"
+version = "0.2.1a"
 description = "A tqdm-style progress bar that plays nice with log files, terminal, and notebooks, even with multiple progress bars, threads, or processes running simultaneously."
 readme = "README.md"
 authors = [
