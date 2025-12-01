@@ -178,16 +178,16 @@ def render_text(pbar):
     percentage = progress * 100
     progress_bar = _pbar_text(pbar.n/pbar.total, status)
     progress_str = f"{percentage:>5.1f}% |{progress_bar}|"
-    counts = f"{pbar.n}/{pbar.total}"
+    counts = f"{pbar.n:>{len(str(pbar.total))}}/{pbar.total}it"
     if status == "running":
-      time_str += f"<{e['time_remaining']}"
+      time_str += f"<{e['time_remaining'] or '??'}"
   else:
     percentage = 0
     progress_str = f""
-    counts = f"{pbar.n}"
+    counts = f"{pbar.n}it"
   if e['iter_per_second'] >= 1:
     iter_str = f"{e['iter_per_second']:.2f}it/s"
   else:
     iter_str = f"{e['time_per_iteration']}s/it"
   time_string = f"{time_str:<14} {iter_str:>14}"
-  return f"({status:^11}) {progress_str} {counts}it [{time_string}] {pbar.desc} {error_extra}"
+  return f"({status:^11}) {progress_str} {counts} [{time_string}] {pbar.desc} {error_extra}"
